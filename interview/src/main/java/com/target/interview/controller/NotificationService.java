@@ -1,4 +1,7 @@
-package com.dpk;
+package com.target.interview.controller;
+
+
+import javax.websocket.server.PathParam;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,16 +15,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dpk.config.ApplicationConfigReader;
-import com.dpk.dto.UserDetails;
-import com.dpk.util.ApplicationConstant;
+import com.target.interview.config.ApplicationConfigReader;
+import com.target.interview.dto.NotificationBean;
+import com.target.interview.util.ApplicationConstant;
+
 
 
 @RestController
-@RequestMapping(path = "/userservice")
-public class UserService {
+@RequestMapping(path = "/notifyService")
+public class NotificationService {
 
-	private static final Logger log = LoggerFactory.getLogger(UserService.class);
+	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
 	private final RabbitTemplate rabbitTemplate;
 	private ApplicationConfigReader applicationConfig;
@@ -37,7 +41,7 @@ public class UserService {
 	}
 
 	@Autowired
-	public UserService(final RabbitTemplate rabbitTemplate) {
+	public NotificationService(final RabbitTemplate rabbitTemplate) {
 		this.rabbitTemplate = rabbitTemplate;
 	}
 
@@ -52,14 +56,21 @@ public class UserService {
 
 
 	@RequestMapping(path = "/add", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> sendMessage(@RequestBody UserDetails user) {
-
-		String exchange = getApplicationConfig().getApp1Exchange();
-		String routingKey = getApplicationConfig().getApp1RoutingKey();
+	public ResponseEntity<?> sendMessage(@PathParam(value = ApplicationConstant.SYSTEM) String source, @RequestBody NotificationBean messagebean) {
+		String exchange = null;
+		String routingKey =null;
+		
+		if(source.equals(ApplicationConstant.SYSTEM)) {
+			exchange = getApplicationConfig().getApp1Exchange();
+			routingKey = getApplicationConfig().getApp1RoutingKey();
+		}else {
+				exchange = getApplicationConfig().getApp2Exchange();
+			    routingKey = getApplicationConfig().getApp2RoutingKey();
+		}
 
 		/* Sending to Message Queue */
 		try {
-			messageSender.sendMessage(rabbitTemplate, exchange, routingKey, user);
+			messageSender.sendMessage(rabbitTemplate, exchange, routingKey, messagebean);
 			return new ResponseEntity<String>(ApplicationConstant.IN_QUEUE, HttpStatus.OK);
 			
 		} catch (Exception ex) {
@@ -69,6 +80,8 @@ public class UserService {
 		}
 
 	}
+	
+	
 
 
 	

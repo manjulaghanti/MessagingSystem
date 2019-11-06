@@ -1,4 +1,7 @@
-package com.dpk;
+package com.target.interview.controller;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,13 +11,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
-import com.dpk.config.ApplicationConfigReader;
-import com.dpk.dto.UserDetails;
-import com.dpk.util.ApplicationConstant;
+
+import com.target.interview.config.ApplicationConfigReader;
+import com.target.interview.dto.Notification;
+import com.target.interview.dto.NotificationBean;
+import com.target.interview.dto.NotificationFactory;
+import com.target.interview.dto.NotificationType;
+import com.target.interview.util.ApplicationConstant;
+
+
 
 /**
  * Message Listener for RabbitMQ
- * @author deepak.af.kumar
+ * @author manjula ghanti
  *
  */
 
@@ -25,18 +34,29 @@ public class MessageListener {
     
     @Autowired
     ApplicationConfigReader applicationConfigReader;
+    @Autowired
+    NotificationFactory notificationFactory;
+    @Autowired
+    NotificationType notificationType;
+    
+   
 
+    
     
     /**
      * Message listener for app1
-     * @param UserDetails a user defined object used for deserialization of message
+     * @param NotificationBean object used for deserialization of message
+     * @throws MessagingException 
+     * @throws AddressException 
      */
     @RabbitListener(queues = "${app1.queue.name}")
-    public void receiveMessageForApp1(final UserDetails data) {
+    public void receiveMessageForApp1(final NotificationBean data) throws AddressException, MessagingException {
     	log.info("Received message: {} from app1 queue.", data);
     	
     	try {
     		log.info("Making REST call to the API");
+    		 Notification notification=notificationFactory.NotificationForm(ApplicationConstant.EMAIL);
+    		 notification.SendNotification(data);
     		//TODO: Code to make REST call
         	log.info("<< Exiting receiveMessageForApp1() after API call.");
     	} catch(HttpClientErrorException  ex) {
@@ -68,11 +88,13 @@ public class MessageListener {
      */
     
     @RabbitListener(queues = "${app2.queue.name}")
-    public void receiveMessageForApp2(String reqObj) {
-    	log.info("Received message: {} from app2 queue.", reqObj);
+    public void receiveMessageForApp2(final NotificationBean notificationBean) {
+    	log.info("Received message: {} from app2 queue.", notificationBean);
     	
     	try {
     		log.info("Making REST call to the API");
+    		 Notification notification=notificationFactory.NotificationForm(ApplicationConstant.SLACK);
+    		 notification.SendNotification(notificationBean);
     		//TODO: Code to make REST call
         	log.info("<< Exiting receiveMessageCrawlCI() after API call.");
     	} catch(HttpClientErrorException  ex) {

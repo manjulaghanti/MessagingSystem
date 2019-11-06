@@ -1,4 +1,4 @@
-package com.dpk.config;
+package com.target.interview.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +25,7 @@ public class ApplicationConfigReader {
 	
 	@Value("${app2.routing.key}")
 	private String app2RoutingKey;
-
+			
 	public String getApp1Exchange() {
 		return app1Exchange;
 	}

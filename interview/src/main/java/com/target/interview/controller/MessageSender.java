@@ -1,4 +1,4 @@
-package com.dpk;
+package com.target.interview.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Message sender to send message to queue using exchange.
- * @author deepak.af.kumar
+ * @author manjula ghanti
  *
  */
 

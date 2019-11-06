@@ -1,10 +1,11 @@
-package com.dpk;
+package com.target.interview;
+
+
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
-import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.annotation.RabbitListenerConfigurer;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -19,13 +20,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.handler.annotation.support.DefaultMessageHandlerMethodFactory;
 
-import com.dpk.config.ApplicationConfigReader;
+import com.target.interview.config.ApplicationConfigReader;
 
-@EnableRabbit
+
 @SpringBootApplication
-public class MsgqApplication extends SpringBootServletInitializer implements RabbitListenerConfigurer {
+public class InterviewApplication extends SpringBootServletInitializer implements RabbitListenerConfigurer{
 
-	@Autowired
+    public static void main(String[] args) {
+        SpringApplication.run(InterviewApplication.class, args);
+    }
+    
+    @Autowired
 	private ApplicationConfigReader applicationConfig;
 	
 	public ApplicationConfigReader getApplicationConfig() {
@@ -36,12 +41,9 @@ public class MsgqApplication extends SpringBootServletInitializer implements Rab
 		this.applicationConfig = applicationConfig;
 	}
 	
-	public static void main(String[] args) {
-		SpringApplication.run(MsgqApplication.class, args);
-	}
 	
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(MsgqApplication.class);
+		return application.sources(InterviewApplication.class);
 	}
 	
 	/* This bean is to read the properties file configs */	
@@ -115,5 +117,5 @@ public class MsgqApplication extends SpringBootServletInitializer implements Rab
 	public void configureRabbitListeners(final RabbitListenerEndpointRegistrar registrar) {
 		registrar.setMessageHandlerMethodFactory(messageHandlerMethodFactory());
 	}
-	
+
 }
